@@ -1,0 +1,73 @@
+!pip install pytesseract
+import os
+import PyPDF2
+from pdf2image import convert_from_path
+from pdfminer.high_level import extract_text
+from PIL import Image
+import pytesseract
+
+# Ensure necessary directories are created
+os.makedirs('extracted_text', exist_ok=True)
+os.makedirs('extracted_images', exist_ok=True)
+os.makedirs('extracted_charts', exist_ok=True)
+os.makedirs('extracted_equations', exist_ok=True)
+
+def extract_text_from_page(page_text, page_num):
+    text_file_path = f'extracted_text/page_{page_num}_text.txt'
+    with open(text_file_path, 'w', encoding='utf-8') as f:
+        f.write(page_text)
+    print(f"Text extracted and saved to {text_file_path}")
+
+def extract_images_from_page(pdf_path, page_num):
+    images = convert_from_path(pdf_path, first_page=page_num, last_page=page_num)
+    for i, image in enumerate(images):
+        image_path = f"extracted_images/page_{page_num}_image_{i+1}.png"
+        image.save(image_path, 'PNG')
+        print(f"Image from page {page_num} saved as {image_path}")
+    return len(images)
+
+def detect_charts_and_equations(image_folder, page_num):
+    for image_file in os.listdir(image_folder):
+        if image_file.endswith('.png') and f"page_{page_num}" in image_file:
+            image_path = os.path.join(image_folder, image_file)
+            img = Image.open(image_path)
+
+            # Using OCR to detect charts and equations in the image
+            ocr_text = pytesseract.image_to_string(img)
+
+            if "chart" in ocr_text.lower() or "figure" in ocr_text.lower():
+                chart_path = f'extracted_charts/page_{page_num}_chart.png'
+                img.save(chart_path)
+                print(f"Chart detected on page {page_num} and saved as {chart_path}")
+            elif "$" in ocr_text or "=" in ocr_text:  # Simple detection for equations
+                equation_path = f'extracted_equations/page_{page_num}_equation.png'
+                img.save(equation_path)
+                print(f"Equation detected on page {page_num} and saved as {equation_path}")
+
+def process_pdf(pdf_path):
+    # Open the PDF
+    with open(pdf_path, 'rb') as pdf_file:
+        # Use PdfReader instead of PdfFileReader
+        reader = PyPDF2.PdfReader(pdf_file)
+        num_pages = len(reader.pages) # Use len(reader.pages) instead of reader.numPages
+
+        # Iterate through each page
+        for page_num in range(1, num_pages + 1):
+            print(f"Processing page {page_num}/{num_pages}")
+
+            # Extract text from the page
+            page_text = extract_text(pdf_path, page_numbers=[page_num - 1])
+            extract_text_from_page(page_text, page_num)
+
+            # Extract images and check for charts and equations
+            images_extracted = extract_images_from_page(pdf_path, page_num)
+            if images_extracted > 0:
+                detect_charts_and_equations('extracted_images', page_num)
+
+# File path
+pdf_path = '/content/thesis.pdf'
+
+# Run extraction
+process_pdf(pdf_path)
+
+print("PDF processing complete!")
