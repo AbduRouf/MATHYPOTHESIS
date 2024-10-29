@@ -1,0 +1,52 @@
+pip install python-Levenshtein
+import fitz  # PyMuPDF
+import Levenshtein as lev  # For calculating Levenshtein distance
+
+# Function to extract text from PDF using PyMuPDF
+def extract_text_from_pdf(pdf_path):
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception as e:
+        print(f"Error opening file: {e}")
+        return ""
+
+    text = ""
+    for page_num in range(len(doc)):
+        try:
+            page = doc.load_page(page_num)
+            text += page.get_text()
+        except Exception as e:
+            print(f"Error reading page {page_num}: {e}")
+            continue
+
+    return text
+
+# Function to calculate accuracy based on Levenshtein distance
+def calculate_accuracy(extracted_text, ground_truth_text):
+    # Clean and normalize text (you can add more cleaning steps if needed)
+    extracted_text = extracted_text.strip().replace("\n", " ")
+    ground_truth_text = ground_truth_text.strip().replace("\n", " ")
+
+    # Calculate Levenshtein distance
+    distance = lev.distance(extracted_text, ground_truth_text)
+
+    # Calculate accuracy: (1 - distance / max_len) * 100
+    max_len = max(len(extracted_text), len(ground_truth_text))
+    accuracy = (1 - (distance / max_len)) * 100
+
+    return accuracy
+
+# Example usage:
+pdf_path = '/content/DISSERTATION ABSTRACT-MTECH ABDU ROUF A (1).pdf'  # Replace with your PDF path
+ground_truth_path = '/content/DISSERTATIONABSTRACTMTECHABDUROUFA1_63d870113f3d4895901a82bbffc192ec_output_452db0a882504fc897205f358a2a1a3e.txt'  # Path to ground truth text file
+
+# Extract text from PDF
+extracted_text = extract_text_from_pdf(pdf_path)
+
+# Load ground truth text from file
+with open(ground_truth_path, 'r', encoding='utf-8') as f:
+    ground_truth_text = f.read()
+
+# Calculate accuracy
+accuracy = calculate_accuracy(extracted_text, ground_truth_text)
+print(f"Extraction Accuracy: {accuracy:.2f}%")
