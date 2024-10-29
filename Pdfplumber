@@ -1,0 +1,10 @@
+pip install pdfplumber
+import pdfplumber
+
+# Open the PDF
+with pdfplumber.open("sample.pdf") as pdf:
+    # Loop through each page in the PDF
+    for page in pdf.pages:
+        # Extract text from the page
+        text = page.extract_text()
+        print(text)
