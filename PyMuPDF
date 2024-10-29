@@ -1,0 +1,45 @@
+!pip install pymupdf==1.23.5
+import fitz  # PyMuPDF
+
+def extract_text_from_pdf(pdf_path):
+    # Open the PDF file
+    doc = fitz.open(pdf_path)
+
+    # Initialize an empty string to hold the extracted text
+    text = ""
+
+    # Loop through each page in the PDF
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)  # Load the page
+        text += page.get_text()  # Extract text from the page
+
+    return text
+
+# Example usage
+pdf_path ='/content/2402.12185v2.pdf' # PyMuPDF
+
+def extract_text_from_pdf(pdf_path):
+    # Open the PDF file
+    doc = fitz.open(pdf_path)
+
+    # Initialize an empty string to hold the extracted text
+    text = ""
+
+    # Loop through each page in the PDF
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)  # Load the page
+        text += page.get_text()  # Extract text from the page
+
+    return text
+
+# Example usage
+pdf_path = '/content/DISSERTATION ABSTRACT-MTECH ABDU ROUF A (1).pdf'  # Replace with the path to your PDF file
+extracted_text = extract_text_from_pdf(pdf_path)
+
+# Output or save the extracted text
+print(extracted_text)  # Or save to a file if needed
+# Replace with the path to your PDF file
+extracted_text = extract_text_from_pdf(pdf_path)
+
+# Output or save the extracted text
+print(extracted_text)
