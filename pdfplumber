@@ -1,0 +1,11 @@
+pip install pdfplumber
+import pdfplumber
+
+# Open the PDF file
+with pdfplumber.open("/content/ast_sci_data_tables_sample.pdf") as pdf:
+    first_page = pdf.pages[0]
+    table = first_page.extract_table()
+    
+    # Print extracted table as rows
+    for row in table:
+        print(row)
