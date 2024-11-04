@@ -1,0 +1,43 @@
+pip install pytesseract pillow sympy
+import pytesseract
+from PIL import Image
+import sympy as sp
+
+# Set path to the Tesseract executable (update based on your installation path)
+# For Windows users: 
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+# OCR function to extract text from image
+def ocr_image(image_path):
+    # Open the image file
+    img = Image.open(image_path)
+    # Use Tesseract to do OCR on the image
+    text = pytesseract.image_to_string(img)
+    return text
+
+# Parse the OCR result to SymPy equation
+def parse_equation(equation_str):
+    try:
+        # Convert the OCR string into a sympy equation
+        equation = sp.sympify(equation_str)
+        return equation
+    except (sp.SympifyError, TypeError) as e:
+        print(f"Error parsing equation: {equation_str}")
+        return None
+
+# Main function to extract and parse an equation from an image
+def process_image(image_path):
+    # Step 1: Extract text (equation) using OCR
+    extracted_text = ocr_image(image_path)
+    print("Extracted Text:", extracted_text)
+
+    # Step 2: Parse the extracted text into an equation
+    equation = parse_equation(extracted_text)
+    if equation:
+        print("Parsed Equation:", equation)
+    else:
+        print("Failed to parse the equation.")
+
+# Test the function with an image containing an equation
+image_path = 'equation_image.png'  # Replace with the path to your image
+process_image(image_path)
