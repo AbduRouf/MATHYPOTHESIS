@@ -1,0 +1,31 @@
+import easyocr
+import cv2
+from matplotlib import pyplot as plt
+
+# Initialize the EasyOCR Reader for English
+reader = easyocr.Reader(['en'])  # 'en' stands for English
+
+# Load the image (using OpenCV, but you can use other libraries like PIL if you prefer)
+image_path = '/content/Screenshot 2024-10-24 160501.jpg'
+image = cv2.imread(image_path)
+
+# Perform OCR on the image
+result = reader.readtext(image_path)
+
+# Print the recognized text
+for detection in result:
+    print(detection[1])
+
+# Optionally, display the image with detected text (bounding boxes)
+for detection in result:
+    top_left = tuple(detection[0][0])
+    bottom_right = tuple(detection[0][2])
+    text = detection[1]
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    image = cv2.rectangle(image, top_left, bottom_right, (0, 255, 0), 3)
+    image = cv2.putText(image, text, top_left, font, 1, (255, 0, 0), 2, cv2.LINE_AA)
+
+# Show the image with bounding boxes
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.axis('off')
+plt.show()
